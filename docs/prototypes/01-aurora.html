@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prototyp 1 – Aurora (Light Dashboard)</title>
+<style>
+  :root{
+    --bg:#f5f6fa; --panel:#ffffff; --ink:#1e2233; --muted:#6b7280;
+    --line:#eceef3; --accent:#6366f1; --accent-soft:#eef0ff;
+    --videos:#8b5cf6; --archive:#f59e0b; --installer:#10b981; --cache:#f43f5e;
+    --bilder:#0ea5e9; --code:#d946ef; --audio:#14b8a6; --doku:#06b6d4; --sonst:#64748b;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--ink);display:flex;min-height:100vh}
+  /* sidebar */
+  .side{width:248px;background:var(--panel);border-right:1px solid var(--line);
+    padding:20px 16px;display:flex;flex-direction:column;gap:6px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;padding:6px 8px 18px}
+  .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#6366f1,#a855f7);
+    display:grid;place-items:center;color:#fff;font-size:16px}
+  .side h4{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 8px 6px}
+  .drive{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:11px;cursor:pointer;border:1px solid transparent}
+  .drive:hover{background:#fafafe}
+  .drive.active{background:var(--accent-soft);border-color:#e0e3ff}
+  .drive .row{display:flex;justify-content:space-between;font-size:13px;font-weight:600}
+  .drive .meter{height:6px;border-radius:99px;background:#edeef3;overflow:hidden}
+  .drive .meter > i{display:block;height:100%;border-radius:99px;background:var(--accent)}
+  .drive small{color:var(--muted);font-size:11px}
+  /* main */
+  .main{flex:1;padding:26px 34px;overflow:auto}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .top h1{font-size:20px;margin:0}
+  .top p{margin:2px 0 0;color:var(--muted);font-size:13px}
+  .btns{display:flex;gap:10px}
+  .btn{border:1px solid var(--line);background:#fff;padding:9px 15px;border-radius:10px;font-size:13px;
+    font-weight:600;cursor:pointer;color:var(--ink)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .cards{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:16px;margin-bottom:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow)}
+  .card .lbl{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .card .big{font-size:26px;font-weight:750;margin-top:6px}
+  .usagebar{height:12px;border-radius:99px;background:#edeef3;overflow:hidden;margin-top:14px;display:flex}
+  .usagebar i{display:block;height:100%}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);margin-bottom:18px}
+  .panel h2{font-size:15px;margin:0 0 16px}
+  .catrow{display:grid;grid-template-columns:150px 1fr 92px 78px;align-items:center;gap:14px;padding:9px 0}
+  .catrow + .catrow{border-top:1px solid var(--line)}
+  .catname{display:flex;align-items:center;gap:9px;font-weight:600;font-size:13.5px}
+  .dot{width:10px;height:10px;border-radius:3px;flex:none}
+  .bar{height:11px;border-radius:99px;background:#f1f2f6;overflow:hidden}
+  .bar > i{display:block;height:100%;border-radius:99px}
+  .sz{text-align:right;font-weight:700;font-size:13.5px;font-variant-numeric:tabular-nums}
+  .pct{text-align:right;color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+  /* tree */
+  .tree{font-size:13.5px}
+  .tnode{display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border-radius:9px}
+  .tnode:hover{background:#fafafe}
+  .tnode .l{display:flex;align-items:center;gap:9px}
+  .tnode.child{padding-left:34px;color:var(--muted)}
+  .tnode .sz{color:var(--ink)}
+  .mini{height:6px;width:120px;border-radius:99px;background:#f1f2f6;overflow:hidden;margin-right:8px}
+  .mini > i{display:block;height:100%;background:var(--accent)}
+</style>
+</head>
+<body>
+  <aside class="side">
+    <div class="brand"><span class="logo">◎</span> DriveLens</div>
+    <h4>Laufwerke</h4>
+    <div class="drive active">
+      <div class="row"><span>C:\ System</span><span>93%</span></div>
+      <div class="meter"><i style="width:93%"></i></div>
+      <small>932 GB von 1 TB belegt</small>
+    </div>
+    <div class="drive">
+      <div class="row"><span>D:\ Daten</span><span>61%</span></div>
+      <div class="meter"><i style="width:61%;background:#10b981"></i></div>
+      <small>1,2 TB von 2 TB belegt</small>
+    </div>
+    <div class="drive">
+      <div class="row"><span>E:\ Backup</span><span>38%</span></div>
+      <div class="meter"><i style="width:38%;background:#f59e0b"></i></div>
+      <small>1,5 TB von 4 TB belegt</small>
+    </div>
+    <h4>Aktionen</h4>
+    <div class="drive"><div class="row" style="font-weight:600">＋ Ordner scannen…</div></div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <div>
+        <h1>Laufwerk C:\</h1>
+        <p>Scan abgeschlossen · 384.913 Dateien · 12.402 Ordner · 1m 48s</p>
+      </div>
+      <div class="btns">
+        <button class="btn">Exportieren</button>
+        <button class="btn primary">Neu scannen</button>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="lbl">Belegt</div>
+        <div class="big">932 GB <span style="font-size:14px;color:var(--muted);font-weight:600">/ 1 TB</span></div>
+        <div class="usagebar">
+          <i style="width:44%;background:var(--videos)"></i><i style="width:18%;background:var(--archive)"></i>
+          <i style="width:10%;background:var(--installer)"></i><i style="width:8%;background:var(--cache)"></i>
+          <i style="width:6%;background:var(--bilder)"></i><i style="width:14%;background:#d7dae3"></i>
+        </div>
+      </div>
+      <div class="card"><div class="lbl">Größter Fresser</div><div class="big">Videos</div>
+        <p style="margin:6px 0 0;color:var(--muted);font-size:13px">412 GB · 44% des Speichers</p></div>
+      <div class="card"><div class="lbl">Aufräum-Potenzial</div><div class="big" style="color:var(--cache)">71 GB</div>
+        <p style="margin:6px 0 0;color:var(--muted);font-size:13px">Cache &amp; temporäre Dateien</p></div>
+    </div>
+
+    <section class="panel">
+      <h2>Nach Kategorie</h2>
+      <div class="catrow"><span class="catname"><span class="dot" style="background:var(--videos)"></span>🎬 Videos</span>
+        <div class="bar"><i style="width:100%;background:var(--videos)"></i></div><span class="sz">412 GB</span><span class="pct">44% · 1.203</span></div>
+      <div class="catrow"><span class="catname"><span class="dot" style="background:var(--archive)"></span>📦 Archive</span>
+        <div class="bar"><i style="width:41%;background:var(--archive)"></i></div><span class="sz">168 GB</span><span class="pct">18% · 340</span></div>
+      <div class="catrow"><span class="catname"><span class="dot" style="background:var(--installer)"></span>⬇️ Installer</span>
+        <div class="bar"><i style="width:23%;background:var(--installer)"></i></div><span class="sz">96 GB</span><span class="pct">10% · 512</span></div>
+      <div class="catrow"><span class="catname"><span class="dot" style="background:var(--cache)"></span>🧹 Cache/Temp</span>
+        <div class="bar"><i style="width:17%;background:var(--cache)"></i></div><span class="sz">71 GB</span><span class="pct">8% · 88.901</span></div>
+      <div class="catrow"><span class="catname"><span class="dot" style="background:var(--bilder)"></span>🖼️ Bilder</span>
+        <div class="bar"><i style="width:13%;background:var(--bilder)"></i></div><span class="sz">54 GB</span><span class="pct">6% · 12.400</span></div>
+      <div class="catrow"><span class="catname"><span class="dot" style="background:var(--sonst)"></span>❓ Sonstiges</span>
+        <div class="bar"><i style="width:12%;background:var(--sonst)"></i></div><span class="sz">49 GB</span><span class="pct">5% · 31.205</span></div>
+    </section>
+
+    <section class="panel">
+      <h2>Größte Ordner</h2>
+      <div class="tree">
+        <div class="tnode"><span class="l">📁 C:\Users\me\Videos</span><span class="sz"><span class="mini" style="display:inline-block;vertical-align:middle"><i style="width:100%"></i></span>310 GB</span></div>
+        <div class="tnode"><span class="l">📁 C:\Users\me\Downloads</span><span class="sz"><span class="mini" style="display:inline-block;vertical-align:middle"><i style="width:46%"></i></span>142 GB</span></div>
+        <div class="tnode"><span class="l">📂 C:\Users\me\AppData\Local</span><span class="sz"><span class="mini" style="display:inline-block;vertical-align:middle"><i style="width:22%"></i></span>68 GB</span></div>
+        <div class="tnode child"><span class="l">📁 …\Temp</span><span class="sz">41 GB</span></div>
+        <div class="tnode child"><span class="l">📁 …\Packages</span><span class="sz">19 GB</span></div>
+        <div class="tnode"><span class="l">📁 C:\ProgramData</span><span class="sz"><span class="mini" style="display:inline-block;vertical-align:middle"><i style="width:7%"></i></span>22 GB</span></div>
+        <div class="tnode"><span class="l">📁 C:\Users\me\Documents</span><span class="sz"><span class="mini" style="display:inline-block;vertical-align:middle"><i style="width:6%"></i></span>18 GB</span></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
