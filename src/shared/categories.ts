@@ -13,6 +13,16 @@ export type CategoryId =
   | 'installers'
   | 'diskImages'
   | 'databases'
+  // Gaming platforms — detected by install path, filterable per launcher.
+  | 'steam'
+  | 'epic'
+  | 'blizzard'
+  | 'gog'
+  | 'ea'
+  | 'ubisoft'
+  | 'riot'
+  | 'xbox'
+  | 'rockstar'
   | 'code'
   | 'cache'
   | 'system'
@@ -86,6 +96,90 @@ export const CATEGORIES: readonly CategoryDef[] = [
     icon: '🗄️',
     color: '#f472b6',
     extensions: ['db', 'sqlite', 'sqlite3', 'mdf', 'ldf', 'dbf']
+  },
+  {
+    id: 'steam',
+    label: 'Steam',
+    icon: '🎮',
+    color: '#2a9df4',
+    extensions: [],
+    // Matches any Steam library on any drive (…\SteamLibrary\steamapps\common).
+    pathHints: ['\\steamapps\\']
+  },
+  {
+    id: 'epic',
+    label: 'Epic Games',
+    icon: '🎮',
+    color: '#cfd3da',
+    extensions: [],
+    pathHints: ['\\epic games\\']
+  },
+  {
+    id: 'blizzard',
+    label: 'Blizzard / Battle.net',
+    icon: '🎮',
+    color: '#148eff',
+    extensions: [],
+    pathHints: [
+      '\\battle.net\\',
+      '\\world of warcraft\\',
+      '\\diablo iv\\',
+      '\\diablo iii\\',
+      '\\diablo ii resurrected\\',
+      '\\overwatch\\',
+      '\\hearthstone\\',
+      '\\heroes of the storm\\',
+      '\\starcraft ii\\',
+      '\\warcraft iii\\'
+    ]
+  },
+  {
+    id: 'gog',
+    label: 'GOG',
+    icon: '🎮',
+    color: '#9b5de5',
+    extensions: [],
+    pathHints: ['\\gog galaxy\\games\\', '\\gog games\\']
+  },
+  {
+    id: 'ea',
+    label: 'EA / Origin',
+    icon: '🎮',
+    color: '#ff5247',
+    extensions: [],
+    pathHints: ['\\ea games\\', '\\origin games\\', '\\electronic arts\\']
+  },
+  {
+    id: 'ubisoft',
+    label: 'Ubisoft Connect',
+    icon: '🎮',
+    color: '#79c0ff',
+    extensions: [],
+    pathHints: ['\\ubisoft\\ubisoft game launcher\\']
+  },
+  {
+    id: 'riot',
+    label: 'Riot Games',
+    icon: '🎮',
+    color: '#ff4d6d',
+    extensions: [],
+    pathHints: ['\\riot games\\']
+  },
+  {
+    id: 'xbox',
+    label: 'Xbox / Game Pass',
+    icon: '🎮',
+    color: '#16a34a',
+    extensions: [],
+    pathHints: ['\\xboxgames\\']
+  },
+  {
+    id: 'rockstar',
+    label: 'Rockstar Games',
+    icon: '🎮',
+    color: '#f7b500',
+    extensions: [],
+    pathHints: ['\\rockstar games\\']
   },
   {
     id: 'code',
