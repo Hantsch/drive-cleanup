@@ -217,3 +217,16 @@ export const CATEGORIES: readonly CategoryDef[] = [
 export const CATEGORY_BY_ID: Readonly<Record<CategoryId, CategoryDef>> = Object.fromEntries(
   CATEGORIES.map((c) => [c.id, c])
 ) as Record<CategoryId, CategoryDef>
+
+/** Categories that represent gaming platforms (shown as installed games). */
+export const GAMING_CATEGORY_IDS: ReadonlySet<CategoryId> = new Set<CategoryId>([
+  'steam',
+  'epic',
+  'blizzard',
+  'gog',
+  'ea',
+  'ubisoft',
+  'riot',
+  'xbox',
+  'rockstar'
+])

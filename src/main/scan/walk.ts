@@ -1,8 +1,9 @@
 import { readdir, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 import { categorize } from '@shared/categorize'
+import { detectGameFolder } from '@shared/games'
 import type { CategoryId } from '@shared/categories'
-import type { ScanNode, ScanProgress } from '@shared/types'
+import type { InstalledGame, ScanNode, ScanProgress } from '@shared/types'
 
 const PROGRESS_INTERVAL_MS = 150
 
@@ -56,9 +57,14 @@ export class Scanner {
 
   private lastEmit = 0
 
+  /** Game-install directory nodes; sizes are filled in by aggregateSizes. */
+  private readonly gameFolders: ScanNode[] = []
+
   constructor(private readonly ctx: ScanContext) {}
 
-  async scan(root: string): Promise<{ tree: ScanNode; stats: ScanStats }> {
+  async scan(
+    root: string
+  ): Promise<{ tree: ScanNode; stats: ScanStats; installations: InstalledGame[] }> {
     const tree: ScanNode = {
       name: rootName(root),
       path: root,
@@ -70,7 +76,19 @@ export class Scanner {
 
     await this.drain([{ node: tree, depth: 0 }])
     aggregateSizes(tree)
-    return { tree, stats: this.stats }
+
+    const installations: InstalledGame[] = this.gameFolders
+      .filter((node) => node.sizeBytes > 0)
+      .map((node) => ({
+        name: node.name,
+        path: node.path,
+        category: node.category as CategoryId,
+        sizeBytes: node.sizeBytes,
+        fileCount: node.fileCount
+      }))
+      .sort((a, b) => b.sizeBytes - a.sizeBytes)
+
+    return { tree, stats: this.stats, installations }
   }
 
   /** Runs a fixed pool of workers over a growing queue of directories. */
@@ -120,14 +138,17 @@ export class Scanner {
     for (const entry of entries) {
       if (entry.isSymbolicLink()) continue
       if (entry.isDirectory()) {
+        const gameCategory = detectGameFolder(node.path, entry.name)
         const childNode: ScanNode = {
           name: entry.name,
           path: join(node.path, entry.name),
           type: 'dir',
           sizeBytes: 0,
           fileCount: 0,
-          children: []
+          children: [],
+          category: gameCategory ?? undefined
         }
+        if (gameCategory) this.gameFolders.push(childNode)
         childDirs.push(childNode)
         queue.push({ node: childNode, depth: depth + 1 })
       } else if (entry.isFile()) {

@@ -32,6 +32,15 @@ export interface CategorySummary {
   fileCount: number
 }
 
+/** A detected application install folder (e.g. one game per gaming platform). */
+export interface InstalledGame {
+  name: string
+  path: string
+  category: CategoryId
+  sizeBytes: number
+  fileCount: number
+}
+
 export interface ScanResult {
   root: string
   startedAt: number
@@ -40,6 +49,8 @@ export interface ScanResult {
   totalFiles: number
   totalDirs: number
   categories: CategorySummary[]
+  /** Detected install folders (games), aggregated and sorted by size. */
+  installations: InstalledGame[]
   tree: ScanNode
   /** Paths skipped because they were not accessible. */
   skipped: string[]

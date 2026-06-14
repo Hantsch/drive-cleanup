@@ -20,7 +20,7 @@ async function runScan(root: string): Promise<void> {
     isCancelled: () => cancelled
   })
 
-  const { tree, stats } = await scanner.scan(root)
+  const { tree, stats, installations } = await scanner.scan(root)
 
   const result: ScanResult = {
     root,
@@ -30,6 +30,7 @@ async function runScan(root: string): Promise<void> {
     totalFiles: stats.files,
     totalDirs: stats.dirs,
     categories: toCategorySummaries(stats.categories),
+    installations,
     tree: pruneTree(tree),
     skipped: stats.skipped
   }

@@ -1,5 +1,5 @@
-import { CATEGORY_BY_ID } from '@shared/categories'
-import type { ScanNode, ScanResult } from '@shared/types'
+import { CATEGORY_BY_ID, GAMING_CATEGORY_IDS } from '@shared/categories'
+import type { InstalledGame, ScanNode, ScanResult } from '@shared/types'
 import { useScanStore } from '@renderer/store/scanStore'
 import { Panel } from '@renderer/components/common/Panel'
 import { bySizeDesc, filesOfCategory, searchNodes } from '@renderer/lib/tree'
@@ -8,7 +8,19 @@ import { NodeRow } from './NodeRow'
 
 const MAX_FLAT_ROWS = 200
 
-type Mode = 'tree' | 'search' | 'category'
+type Mode = 'tree' | 'games' | 'search' | 'category'
+
+/** Presents an installed game as a directory row. */
+function gameToNode(game: InstalledGame): ScanNode {
+  return {
+    name: game.name,
+    path: game.path,
+    type: 'dir',
+    sizeBytes: game.sizeBytes,
+    fileCount: game.fileCount,
+    category: game.category
+  }
+}
 
 export function DrillDownPanel({ result }: { result: ScanResult }) {
   const filter = useScanStore((state) => state.filter)
@@ -18,10 +30,22 @@ export function DrillDownPanel({ result }: { result: ScanResult }) {
   const total = result.totalSizeBytes || 1
   const query = filter.trim().toLowerCase()
 
+  // Installed games for the selected gaming platform (folder-level view).
+  const games =
+    selectedCategory && GAMING_CATEGORY_IDS.has(selectedCategory)
+      ? result.installations.filter(
+          (game) =>
+            game.category === selectedCategory &&
+            (query === '' || game.path.toLowerCase().includes(query))
+        )
+      : []
+
   let mode: Mode = 'tree'
   let flat: ScanNode[] = []
 
-  if (selectedCategory) {
+  if (games.length > 0) {
+    mode = 'games'
+  } else if (selectedCategory) {
     mode = 'category'
     flat = filesOfCategory(result.tree, selectedCategory)
       .filter((node) => query === '' || node.path.toLowerCase().includes(query))
@@ -31,13 +55,22 @@ export function DrillDownPanel({ result }: { result: ScanResult }) {
     flat = searchNodes(result.tree, filter).sort(bySizeDesc)
   }
 
+  // Games share against the platform total; other items against the whole scan.
+  const categoryTotal = selectedCategory
+    ? result.categories.find((category) => category.id === selectedCategory)?.sizeBytes || total
+    : total
+
   const shown = flat.slice(0, MAX_FLAT_ROWS)
   const truncated = flat.length > shown.length
 
-  const subtitle =
-    mode === 'tree'
-      ? 'Click a folder to expand it'
-      : `${shown.length} match${shown.length === 1 ? '' : 'es'}${truncated ? ` (showing top ${MAX_FLAT_ROWS})` : ''}`
+  let subtitle: string
+  if (mode === 'tree') subtitle = 'Click a folder to expand it'
+  else if (mode === 'games')
+    subtitle = `${games.length} installed game${games.length === 1 ? '' : 's'} · largest first`
+  else
+    subtitle = `${shown.length} match${shown.length === 1 ? '' : 'es'}${
+      truncated ? ` (showing top ${MAX_FLAT_ROWS})` : ''
+    }`
 
   return (
     <Panel>
@@ -66,15 +99,19 @@ export function DrillDownPanel({ result }: { result: ScanResult }) {
       </div>
 
       <div className="mt-1.5">
-        {mode === 'tree' ? (
-          <FolderTree root={result.tree} totalBytes={total} />
-        ) : (
+        {mode === 'tree' && <FolderTree root={result.tree} totalBytes={total} />}
+
+        {mode === 'games' &&
+          games.map((game) => (
+            <NodeRow key={game.path} node={gameToNode(game)} totalBytes={categoryTotal} showDir />
+          ))}
+
+        {(mode === 'category' || mode === 'search') &&
           shown.map((node) => (
             <NodeRow key={node.path} node={node} totalBytes={total} showDir />
-          ))
-        )}
+          ))}
 
-        {mode !== 'tree' && shown.length === 0 && (
+        {(mode === 'category' || mode === 'search') && shown.length === 0 && (
           <p className="py-10 text-center text-sm text-muted">Nothing matches this filter.</p>
         )}
       </div>

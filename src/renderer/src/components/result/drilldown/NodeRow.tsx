@@ -62,7 +62,7 @@ export function NodeRow({
             </span>
           )}
         </div>
-        {def && node.type === 'file' && (
+        {def && (
           <span className="ml-1 hidden items-center gap-1.5 rounded-full bg-panel-3 px-2 py-0.5 text-[10.5px] font-semibold sm:inline-flex">
             <span className="h-1.5 w-1.5 rounded-[2px]" style={{ background: def.color }} />
             {def.label}
