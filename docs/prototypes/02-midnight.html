@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prototyp 2 – Midnight (Dark Pro)</title>
+<style>
+  :root{
+    --bg:#0b0e17; --panel:#141925; --panel2:#1b2230; --ink:#e7ebf3; --muted:#8a94a8;
+    --line:#232b3b; --accent:#7c83ff;
+    --videos:#a78bfa; --archive:#fbbf24; --installer:#34d399; --cache:#fb7185;
+    --bilder:#38bdf8; --code:#e879f9; --audio:#2dd4bf; --doku:#22d3ee; --sonst:#94a3b8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1280px;margin:0 auto;padding:22px 26px}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;font-size:16px}
+  .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#7c83ff,#e879f9);display:grid;place-items:center;font-size:15px}
+  .chips{display:flex;gap:8px}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-size:12.5px;color:var(--muted);cursor:pointer}
+  .chip.active{color:var(--ink);border-color:#39425a;background:var(--panel2)}
+  .btn{background:var(--accent);border:none;color:#fff;padding:9px 16px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer}
+  .summary{display:flex;align-items:center;gap:26px;background:linear-gradient(120deg,#151b29,#11151f);
+    border:1px solid var(--line);border-radius:16px;padding:20px 24px;margin-bottom:20px}
+  .gauge{--p:93;width:104px;height:104px;border-radius:50%;flex:none;
+    background:conic-gradient(var(--accent) calc(var(--p)*1%), #232b3b 0);display:grid;place-items:center}
+  .gauge::before{content:"";position:absolute;width:74px;height:74px;border-radius:50%;background:var(--bg)}
+  .gauge b{position:relative;font-size:20px}
+  .summary .meta{flex:1;display:flex;gap:38px}
+  .summary .meta div small{display:block;color:var(--muted);font-size:12px;margin-bottom:4px}
+  .summary .meta div b{font-size:22px;font-weight:750}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+  .card h2{font-size:14px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+  .card .sub{color:var(--muted);font-size:12px;margin:0 0 16px}
+  .catrow{display:grid;grid-template-columns:130px 1fr 72px;align-items:center;gap:12px;padding:11px 0}
+  .catrow + .catrow{border-top:1px solid var(--line)}
+  .catname{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+  .dot{width:9px;height:9px;border-radius:3px}
+  .bar{height:10px;border-radius:99px;background:#0d1119;overflow:hidden;box-shadow:inset 0 0 0 1px #20283a}
+  .bar > i{display:block;height:100%;border-radius:99px;box-shadow:0 0 14px -2px currentColor}
+  .sz{text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+  .pct{color:var(--muted);font-size:11px;text-align:right;margin-top:2px}
+  .tree{font-size:13px}
+  .tnode{display:flex;align-items:center;justify-content:space-between;padding:10px 11px;border-radius:9px;cursor:pointer}
+  .tnode:hover{background:var(--panel2)}
+  .tnode.child{padding-left:34px;color:var(--muted)}
+  .tnode .sz{font-variant-numeric:tabular-nums}
+  .tag{font-size:10.5px;padding:2px 8px;border-radius:99px;background:var(--panel2);color:var(--muted);margin-left:8px}
+  .legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:6px}
+  .legend span{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand"><span class="logo">◎</span> DriveLens <span class="tag">v1 · Analyse</span></div>
+      <div class="chips">
+        <span class="chip active">C:\ System</span>
+        <span class="chip">D:\ Daten</span>
+        <span class="chip">E:\ Backup</span>
+        <span class="chip">＋ Ordner…</span>
+      </div>
+      <button class="btn">Neu scannen</button>
+    </header>
+
+    <section class="summary">
+      <div class="gauge" style="position:relative;--p:93"><b>93%</b></div>
+      <div class="meta">
+        <div><small>Laufwerk C:\</small><b>932 GB</b></div>
+        <div><small>Gesamt</small><b>1 TB</b></div>
+        <div><small>Frei</small><b>68 GB</b></div>
+        <div><small>Dateien</small><b>384.913</b></div>
+        <div><small>Scandauer</small><b>1m 48s</b></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <div class="card">
+        <h2>📊 Nach Kategorie</h2>
+        <p class="sub">Wo der Speicher liegt – größte zuerst</p>
+        <div class="catrow"><span class="catname"><span class="dot" style="background:var(--videos)"></span>🎬 Videos</span>
+          <div class="bar"><i style="width:100%;background:var(--videos);color:var(--videos)"></i></div>
+          <div><div class="sz">412 GB</div><div class="pct">44%</div></div></div>
+        <div class="catrow"><span class="catname"><span class="dot" style="background:var(--archive)"></span>📦 Archive</span>
+          <div class="bar"><i style="width:41%;background:var(--archive);color:var(--archive)"></i></div>
+          <div><div class="sz">168 GB</div><div class="pct">18%</div></div></div>
+        <div class="catrow"><span class="catname"><span class="dot" style="background:var(--installer)"></span>⬇️ Installer</span>
+          <div class="bar"><i style="width:23%;background:var(--installer);color:var(--installer)"></i></div>
+          <div><div class="sz">96 GB</div><div class="pct">10%</div></div></div>
+        <div class="catrow"><span class="catname"><span class="dot" style="background:var(--cache)"></span>🧹 Cache/Temp</span>
+          <div class="bar"><i style="width:17%;background:var(--cache);color:var(--cache)"></i></div>
+          <div><div class="sz">71 GB</div><div class="pct">8%</div></div></div>
+        <div class="catrow"><span class="catname"><span class="dot" style="background:var(--bilder)"></span>🖼️ Bilder</span>
+          <div class="bar"><i style="width:13%;background:var(--bilder);color:var(--bilder)"></i></div>
+          <div><div class="sz">54 GB</div><div class="pct">6%</div></div></div>
+        <div class="catrow"><span class="catname"><span class="dot" style="background:var(--code)"></span>👨‍💻 Code</span>
+          <div class="bar"><i style="width:9%;background:var(--code);color:var(--code)"></i></div>
+          <div><div class="sz">38 GB</div><div class="pct">4%</div></div></div>
+        <div class="catrow"><span class="catname"><span class="dot" style="background:var(--sonst)"></span>❓ Sonstiges</span>
+          <div class="bar"><i style="width:12%;background:var(--sonst);color:var(--sonst)"></i></div>
+          <div><div class="sz">49 GB</div><div class="pct">5%</div></div></div>
+      </div>
+
+      <div class="card">
+        <h2>🗂️ Drill-down · Größte Ordner</h2>
+        <p class="sub">Klicken zum Aufklappen</p>
+        <div class="tree">
+          <div class="tnode"><span>📁 C:\Users\me\Videos <span class="tag">Videos</span></span><span class="sz">310 GB</span></div>
+          <div class="tnode"><span>📁 C:\Users\me\Downloads <span class="tag">gemischt</span></span><span class="sz">142 GB</span></div>
+          <div class="tnode"><span>📂 C:\Users\me\AppData\Local <span class="tag">Cache</span></span><span class="sz">68 GB</span></div>
+          <div class="tnode child"><span>📁 …\Temp</span><span class="sz">41 GB</span></div>
+          <div class="tnode child"><span>📁 …\Packages</span><span class="sz">19 GB</span></div>
+          <div class="tnode child"><span>📁 …\Microsoft\Edge</span><span class="sz">8 GB</span></div>
+          <div class="tnode"><span>📁 C:\ProgramData</span><span class="sz">22 GB</span></div>
+          <div class="tnode"><span>📁 C:\Users\me\Projects\node_modules <span class="tag">Code</span></span><span class="sz">14 GB</span></div>
+          <div class="tnode"><span>📄 …\Downloads\ubuntu-24.04.iso</span><span class="sz">5,2 GB</span></div>
+        </div>
+        <div class="legend">
+          <span><span class="dot" style="background:var(--videos)"></span>Videos</span>
+          <span><span class="dot" style="background:var(--cache)"></span>Cache</span>
+          <span><span class="dot" style="background:var(--code)"></span>Code</span>
+          <span><span class="dot" style="background:var(--archive)"></span>Archive</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

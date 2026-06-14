@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DriveLens – UI-Prototypen</title>
+<style>
+  :root{--bg:#0d1018;--panel:#161b26;--ink:#e8ecf3;--muted:#94a0b4;--line:#252c3a;--accent:#7c83ff}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1080px;margin:0 auto;padding:48px 28px}
+  h1{font-size:28px;margin:0 0 6px}
+  .lead{color:var(--muted);margin:0 0 36px;font-size:15px;max-width:680px;line-height:1.5}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+  a.card{display:block;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;transition:transform .12s,border-color .12s}
+  a.card:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .thumb{height:128px;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+  .num{position:absolute;top:10px;left:12px;font-size:12px;font-weight:700;background:rgba(0,0,0,.35);
+    border-radius:99px;padding:3px 10px}
+  .body{padding:16px 18px}
+  .body h3{margin:0 0 4px;font-size:16px}
+  .body p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}
+  .tags{margin-top:11px;display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:3px 9px}
+  footer{margin-top:40px;color:var(--muted);font-size:13px;line-height:1.6;border-top:1px solid var(--line);padding-top:22px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>DriveLens · UI-Prototypen</h1>
+    <p class="lead">5 statische Design-Richtungen für den Ergebnis-Screen (Kategorie-Übersicht + Detailliste).
+       Gleicher Dummy-Datensatz überall. Öffne jeden Entwurf, vergleiche, und sag mir, welche Richtung (oder Mischung) dir gefällt.</p>
+
+    <a class="card" href="final.html" style="display:block;margin-bottom:22px;border-color:#7c83ff">
+      <div style="display:flex;align-items:center;gap:18px;padding:18px 20px">
+        <div style="width:70px;height:70px;border-radius:14px;flex:none;background:linear-gradient(135deg,#141925,#1b2230);display:grid;place-items:center;font-size:30px;color:#a78bfa">★</div>
+        <div><h3 style="margin:0 0 4px;font-size:18px">Finales UI <span style="font-size:11px;color:#7c83ff;border:1px solid #2f3650;border-radius:99px;padding:2px 9px;vertical-align:middle">refined</span></h3>
+          <p style="margin:0;color:#94a0b4;font-size:13px;line-height:1.45">Kombination aus Midnight (dunkel, Auslastungs-Übersicht, Drill-down-Baum) + Ledger (Kompositions-Balken, Pfade, Filter). <b style="color:#e8ecf3">Filter, Kategorie-Auswahl &amp; Auf-/Zuklappen funktionieren.</b></p></div>
+      </div>
+    </a>
+
+    <p class="sectitle" style="font-size:13px;font-weight:700;color:#94a0b4;text-transform:uppercase;letter-spacing:.06em;margin:0 0 14px">Ausgangs-Entwürfe</p>
+    <div class="grid">
+      <a class="card" href="01-aurora.html">
+        <div class="thumb" style="background:linear-gradient(135deg,#eef0ff,#fafafe);color:#6366f1"><span class="num" style="color:#fff">01</span>◧</div>
+        <div class="body"><h3>Aurora</h3><p>Helles Dashboard mit Sidebar, Kennzahlen-Karten und klaren Kategorie-Balken.</p>
+          <div class="tags"><span class="tag">hell</span><span class="tag">Sidebar</span><span class="tag">Balken</span><span class="tag">SaaS-Look</span></div></div>
+      </a>
+      <a class="card" href="02-midnight.html">
+        <div class="thumb" style="background:linear-gradient(135deg,#141925,#1b2230);color:#a78bfa"><span class="num">02</span>◫</div>
+        <div class="body"><h3>Midnight</h3><p>Dunkel, dicht, zweispaltig: Kategorien links, Ordner-Drill-down rechts. Power-Look.</p>
+          <div class="tags"><span class="tag">dunkel</span><span class="tag">2 Spalten</span><span class="tag">Gauge</span><span class="tag">kompakt</span></div></div>
+      </a>
+      <a class="card" href="03-bloom.html">
+        <div class="thumb" style="background:linear-gradient(135deg,#fdeef4,#fbf7f4);color:#7c3aed"><span class="num" style="color:#fff">03</span>❀</div>
+        <div class="body"><h3>Bloom</h3><p>Freundlich &amp; farbig: große Kategorie-Karten mit Icon und Prozent-Ring. Einsteigerfreundlich.</p>
+          <div class="tags"><span class="tag">hell</span><span class="tag">Karten</span><span class="tag">verspielt</span><span class="tag">Ringe</span></div></div>
+      </a>
+      <a class="card" href="04-mosaic.html">
+        <div class="thumb" style="background:linear-gradient(135deg,#171a21,#0f1115);color:#10b981"><span class="num">04</span>▦</div>
+        <div class="body"><h3>Mosaic</h3><p>Treemap als Held: Flächen proportional zur Größe, Seitenpanel mit Details. Sehr visuell.</p>
+          <div class="tags"><span class="tag">dunkel</span><span class="tag">Treemap</span><span class="tag">Drill-down</span><span class="tag">explorativ</span></div></div>
+      </a>
+      <a class="card" href="05-ledger.html">
+        <div class="thumb" style="background:linear-gradient(135deg,#f7f8fa,#ffffff);color:#2563eb"><span class="num" style="color:#fff">05</span>▤</div>
+        <div class="body"><h3>Ledger</h3><p>Datendicht: dünner Kompositions-Balken oben, große sortierbare Tabelle. Für Power-User.</p>
+          <div class="tags"><span class="tag">hell</span><span class="tag">Tabelle</span><span class="tag">sortierbar</span><span class="tag">effizient</span></div></div>
+      </a>
+    </div>
+
+    <footer>
+      <b>So vergleichst du:</b> Öffne <code>docs/prototypes/index.html</code> im Browser und klick dich durch.
+      Es sind reine HTML/CSS-Mockups (keine echte Funktion, keine externen Abhängigkeiten – auch offline nutzbar).<br>
+      Sag mir danach: <b>Welche Richtung</b> trifft es am besten – oder welche Elemente aus verschiedenen Entwürfen
+      sollen wir kombinieren (z. B. „Aurora-Layout mit Mosaic-Treemap")?
+    </footer>
+  </div>
+</body>
+</html>

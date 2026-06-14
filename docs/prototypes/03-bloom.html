@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prototyp 3 – Bloom (Friendly Cards)</title>
+<style>
+  :root{
+    --bg:#fbf7f4; --ink:#2a2630; --muted:#8b8794; --line:#efe7e1;
+    --videos:#7c3aed; --archive:#ea8a00; --installer:#0ea371; --cache:#e11d6b;
+    --bilder:#0284c7; --code:#c026d3; --audio:#0d9488; --doku:#0891b2; --sonst:#71717a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:radial-gradient(1200px 500px at 80% -10%, #fdeef4 0, var(--bg) 55%);color:var(--ink);min-height:100vh}
+  .wrap{max-width:1080px;margin:0 auto;padding:34px 28px}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:18px}
+  .logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#f472b6,#7c3aed);display:grid;place-items:center;color:#fff}
+  .btn{border:none;border-radius:12px;padding:11px 18px;font-weight:700;font-size:13px;cursor:pointer}
+  .btn.primary{background:#2a2630;color:#fff}
+  .hero{margin:18px 0 26px}
+  .hero h1{font-size:30px;margin:0 0 4px;letter-spacing:-.02em}
+  .hero p{margin:0;color:var(--muted);font-size:14px}
+  .hero .free{display:inline-block;margin-top:14px;background:#fff;border:1px solid var(--line);
+    border-radius:99px;padding:8px 16px;font-size:13px;font-weight:600;box-shadow:0 6px 18px rgba(124,58,237,.06)}
+  .free b{color:var(--cache)}
+  .sectitle{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 14px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .cat{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 18px 16px;
+    box-shadow:0 10px 26px rgba(42,38,48,.05);position:relative;overflow:hidden;cursor:pointer;transition:transform .12s}
+  .cat:hover{transform:translateY(-3px)}
+  .cat .ico{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;margin-bottom:14px}
+  .cat h3{margin:0;font-size:15px}
+  .cat .size{font-size:24px;font-weight:800;margin-top:8px;letter-spacing:-.01em}
+  .cat .meta{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+  .cat .files{color:var(--muted);font-size:12px}
+  .ring{--p:44;--c:#7c3aed;width:42px;height:42px;border-radius:50%;
+    background:conic-gradient(var(--c) calc(var(--p)*1%), #f0ecee 0);display:grid;place-items:center;position:relative}
+  .ring::before{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff}
+  .ring b{position:relative;font-size:11px;font-weight:800}
+  .progline{height:8px;border-radius:99px;background:#f3eef1;overflow:hidden;margin-top:14px}
+  .progline > i{display:block;height:100%;border-radius:99px}
+  /* detail */
+  .detail{background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px;margin-top:26px;box-shadow:0 10px 26px rgba(42,38,48,.05)}
+  .drow{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px}
+  .drow:hover{background:#fbf7fa}
+  .drow + .drow{border-top:1px solid var(--line)}
+  .drow .pill{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:18px;flex:none}
+  .drow .name{flex:1;font-weight:600;font-size:14px}
+  .drow .name small{display:block;color:var(--muted);font-weight:500;font-size:12px;margin-top:2px}
+  .drow .val{font-weight:800;font-size:15px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand"><span class="logo">◎</span> DriveLens</div>
+      <button class="btn primary">＋ Neuer Scan</button>
+    </header>
+
+    <div class="hero">
+      <h1>C:\ frisst Platz 🍰</h1>
+      <p>384.913 Dateien analysiert · zuletzt gescannt vor 2 Minuten</p>
+      <span class="free">Noch <b>68 GB</b> frei von 1 TB · 71 GB davon nur Cache &amp; Temp</span>
+    </div>
+
+    <p class="sectitle">Speicher nach Kategorie</p>
+    <div class="cards">
+      <div class="cat">
+        <div class="ico" style="background:#f1eafe;color:var(--videos)">🎬</div>
+        <h3>Videos</h3><div class="size">412 GB</div>
+        <div class="meta"><span class="files">1.203 Dateien</span>
+          <span class="ring" style="--p:44;--c:var(--videos)"><b>44%</b></span></div>
+        <div class="progline"><i style="width:100%;background:var(--videos)"></i></div>
+      </div>
+      <div class="cat">
+        <div class="ico" style="background:#fdf0db;color:var(--archive)">📦</div>
+        <h3>Archive</h3><div class="size">168 GB</div>
+        <div class="meta"><span class="files">340 Dateien</span>
+          <span class="ring" style="--p:18;--c:var(--archive)"><b>18%</b></span></div>
+        <div class="progline"><i style="width:41%;background:var(--archive)"></i></div>
+      </div>
+      <div class="cat">
+        <div class="ico" style="background:#dcf7ee;color:var(--installer)">⬇️</div>
+        <h3>Installer</h3><div class="size">96 GB</div>
+        <div class="meta"><span class="files">512 Dateien</span>
+          <span class="ring" style="--p:10;--c:var(--installer)"><b>10%</b></span></div>
+        <div class="progline"><i style="width:23%;background:var(--installer)"></i></div>
+      </div>
+      <div class="cat">
+        <div class="ico" style="background:#fde2ec;color:var(--cache)">🧹</div>
+        <h3>Cache/Temp</h3><div class="size">71 GB</div>
+        <div class="meta"><span class="files">88.901 Dateien</span>
+          <span class="ring" style="--p:8;--c:var(--cache)"><b>8%</b></span></div>
+        <div class="progline"><i style="width:17%;background:var(--cache)"></i></div>
+      </div>
+      <div class="cat">
+        <div class="ico" style="background:#dceffb;color:var(--bilder)">🖼️</div>
+        <h3>Bilder</h3><div class="size">54 GB</div>
+        <div class="meta"><span class="files">12.400 Dateien</span>
+          <span class="ring" style="--p:6;--c:var(--bilder)"><b>6%</b></span></div>
+        <div class="progline"><i style="width:13%;background:var(--bilder)"></i></div>
+      </div>
+      <div class="cat">
+        <div class="ico" style="background:#eef0f3;color:var(--sonst)">❓</div>
+        <h3>Sonstiges</h3><div class="size">49 GB</div>
+        <div class="meta"><span class="files">31.205 Dateien</span>
+          <span class="ring" style="--p:5;--c:var(--sonst)"><b>5%</b></span></div>
+        <div class="progline"><i style="width:12%;background:var(--sonst)"></i></div>
+      </div>
+    </div>
+
+    <p class="sectitle" style="margin-top:30px">Größte Brocken</p>
+    <div class="detail">
+      <div class="drow"><span class="pill" style="background:#f1eafe">📁</span>
+        <span class="name">C:\Users\me\Videos <small>Ordner · 1.118 Dateien · Videos</small></span><span class="val">310 GB</span></div>
+      <div class="drow"><span class="pill" style="background:#fdf0db">📁</span>
+        <span class="name">C:\Users\me\Downloads <small>Ordner · gemischt</small></span><span class="val">142 GB</span></div>
+      <div class="drow"><span class="pill" style="background:#fde2ec">📂</span>
+        <span class="name">C:\Users\me\AppData\Local <small>Ordner · Cache &amp; Temp</small></span><span class="val">68 GB</span></div>
+      <div class="drow"><span class="pill" style="background:#dceffb">📄</span>
+        <span class="name">pacific-rim-4k.mkv <small>Datei · C:\Users\me\Videos</small></span><span class="val">38 GB</span></div>
+    </div>
+  </div>
+</body>
+</html>

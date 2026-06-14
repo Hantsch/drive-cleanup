@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DriveLens – Finales UI (refined)</title>
+<style>
+  :root{
+    --bg:#0b0e17; --panel:#141925; --panel2:#1b2230; --panel3:#222a3a;
+    --ink:#e7ebf3; --muted:#8a94a8; --faint:#5b667d; --line:#232b3b; --accent:#7c83ff;
+    --videos:#a78bfa; --archive:#fbbf24; --installer:#34d399; --cache:#fb7185;
+    --bilder:#38bdf8; --code:#e879f9; --audio:#2dd4bf; --doku:#22d3ee; --sonst:#94a3b8;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px}
+  .wrap{max-width:1340px;margin:0 auto;padding:18px 24px 40px}
+
+  /* ---------- top bar ---------- */
+  header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+  .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#7c83ff,#e879f9);display:grid;place-items:center;font-size:15px}
+  .ver{font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+  .chips{display:flex;gap:7px}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-size:12.5px;color:var(--muted);cursor:pointer;transition:.12s}
+  .chip:hover{color:var(--ink)}
+  .chip.active{color:var(--ink);border-color:#39425a;background:var(--panel2)}
+  .spacer{flex:1}
+  .search{position:relative}
+  .search input{background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--ink);
+    font-size:13px;padding:9px 12px 9px 34px;width:280px;font-family:var(--mono);outline:none;transition:.12s}
+  .search input::placeholder{color:var(--muted);font-family:system-ui}
+  .search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,131,255,.15)}
+  .search .ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px}
+  .btn{background:var(--accent);border:none;color:#fff;padding:9px 16px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer}
+  .btn.ghost{background:var(--panel);border:1px solid var(--line);color:var(--ink)}
+
+  /* ---------- summary + composition ---------- */
+  .overview{background:linear-gradient(120deg,#151b29,#10141f);border:1px solid var(--line);border-radius:16px;padding:20px 24px;margin-bottom:18px}
+  .ovtop{display:flex;align-items:center;gap:28px}
+  .gauge{--p:93;position:relative;width:96px;height:96px;border-radius:50%;flex:none;
+    background:conic-gradient(var(--accent) calc(var(--p)*1%), #232b3b 0);display:grid;place-items:center}
+  .gauge::before{content:"";position:absolute;width:70px;height:70px;border-radius:50%;background:#11151f}
+  .gauge b{position:relative;font-size:19px}
+  .gauge small{position:relative;display:block;text-align:center;font-size:9.5px;color:var(--muted);margin-top:1px}
+  .meta{flex:1;display:flex;gap:34px;flex-wrap:wrap}
+  .meta div small{display:block;color:var(--muted);font-size:11.5px;margin-bottom:4px}
+  .meta div b{font-size:21px;font-weight:750;font-variant-numeric:tabular-nums}
+  .meta .hl b{color:var(--cache)}
+
+  .compo{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+  .compo .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:9px}
+  .stack{height:16px;border-radius:6px;overflow:hidden;display:flex;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+  .stack i{height:100%;cursor:pointer;transition:filter .12s;position:relative}
+  .stack i:hover{filter:brightness(1.18)}
+  .stack i.dim{filter:grayscale(.6) brightness(.55)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px}
+  .legend span{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+  .legend .dot{width:10px;height:10px;border-radius:3px}
+  .legend b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+  /* ---------- main split ---------- */
+  .grid{display:grid;grid-template-columns:380px 1fr;gap:18px;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .card h2{font-size:13.5px;margin:0 0 3px;display:flex;align-items:center;gap:8px}
+  .card .sub{color:var(--muted);font-size:11.5px;margin:0 0 14px}
+
+  /* category list */
+  .catrow{display:grid;grid-template-columns:1fr 64px;gap:6px 10px;align-items:center;padding:9px 8px;border-radius:10px;cursor:pointer;transition:.12s}
+  .catrow:hover{background:var(--panel2)}
+  .catrow.active{background:var(--panel2);box-shadow:inset 0 0 0 1px #39425a}
+  .catname{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600}
+  .catname .dot{width:10px;height:10px;border-radius:3px;flex:none}
+  .catsz{text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+  .catbar{grid-column:1 / -1;height:8px;border-radius:99px;background:#0d1119;overflow:hidden;box-shadow:inset 0 0 0 1px #20283a}
+  .catbar > i{display:block;height:100%;border-radius:99px;box-shadow:0 0 12px -2px currentColor}
+  .catmeta{grid-column:1 / -1;display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+  /* drill-down tree */
+  .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .filterTag{display:none;align-items:center;gap:7px;font-size:11.5px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:4px 6px 4px 11px}
+  .filterTag.show{display:inline-flex}
+  .filterTag button{background:#2c3548;border:none;color:var(--ink);width:18px;height:18px;border-radius:50%;cursor:pointer;font-size:11px;line-height:1}
+  .colhead{display:grid;grid-template-columns:1fr 120px 96px;gap:10px;padding:0 10px 8px;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--line)}
+  .colhead .r{text-align:right}
+  .tree{margin-top:4px}
+  .tnode{display:grid;grid-template-columns:1fr 120px 96px;gap:10px;align-items:center;padding:9px 10px;border-radius:9px;cursor:default}
+  .tnode:hover{background:var(--panel2)}
+  .tnode.parent{cursor:pointer}
+  .tnode.filtered-out{display:none !important}
+  .nm{display:flex;align-items:center;gap:8px;min-width:0}
+  .chev{width:14px;flex:none;color:var(--muted);transition:transform .12s;font-size:10px}
+  .tnode.parent.open .chev{transform:rotate(90deg)}
+  .tnode:not(.parent) .chev{visibility:hidden}
+  .ico{flex:none}
+  .ptext{min-width:0;overflow:hidden}
+  .ptext .leaf{font-family:var(--mono);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+  .ptext .dir{color:var(--muted);font-size:11px;font-family:var(--mono)}
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--panel3)}
+  .badge .dot{width:7px;height:7px;border-radius:2px}
+  .tsz{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:12.5px}
+  .tbar{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+  .tbar .mini{width:64px;height:6px;border-radius:99px;background:#0d1119;overflow:hidden;box-shadow:inset 0 0 0 1px #20283a}
+  .tbar .mini > i{display:block;height:100%;border-radius:99px}
+  .tbar .pc{color:var(--muted);font-size:11px;width:34px;text-align:right;font-variant-numeric:tabular-nums}
+  .tgroup{margin-left:14px;border-left:1px solid var(--line);padding-left:6px}
+  .tnode.parent:not(.open) + .tgroup{display:none}
+  .tree.searching .tgroup{display:block !important}
+  .child .ptext .leaf{color:var(--muted)}
+  .empty{display:none;text-align:center;color:var(--muted);font-size:12.5px;padding:26px}
+  .empty.show{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= TOP BAR ================= -->
+  <header>
+    <div class="brand"><span class="logo">◎</span> DriveLens <span class="ver">v1 · Analyse</span></div>
+    <div class="chips">
+      <span class="chip active" data-drive="C">C:\ System</span>
+      <span class="chip" data-drive="D">D:\ Daten</span>
+      <span class="chip" data-drive="E">E:\ Backup</span>
+      <span class="chip" data-drive="folder">＋ Ordner…</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="search"><span class="ic">🔍</span><input id="filter" placeholder="Filtern nach Name oder Pfad…" /></div>
+    <button class="btn ghost">Export</button>
+    <button class="btn">↻ Neu scannen</button>
+  </header>
+
+  <!-- ================= OVERVIEW ================= -->
+  <section class="overview">
+    <div class="ovtop">
+      <div class="gauge"><b>93%</b><small>belegt</small></div>
+      <div class="meta">
+        <div><small>Laufwerk</small><b>C:\</b></div>
+        <div><small>Belegt</small><b>932 GB</b></div>
+        <div><small>Gesamt</small><b>1 TB</b></div>
+        <div><small>Frei</small><b>68 GB</b></div>
+        <div><small>Dateien</small><b>384.913</b></div>
+        <div class="hl"><small>Aufräum-Potenzial</small><b>71 GB</b></div>
+      </div>
+    </div>
+
+    <div class="compo">
+      <div class="lbl">Speicher-Zusammensetzung</div>
+      <div class="stack" id="stack">
+        <i data-cat="videos"   style="width:44%;background:var(--videos)"   title="Videos · 412 GB"></i>
+        <i data-cat="archive"  style="width:18%;background:var(--archive)"  title="Archive · 168 GB"></i>
+        <i data-cat="installer"style="width:10%;background:var(--installer)" title="Installer · 96 GB"></i>
+        <i data-cat="cache"    style="width:8%;background:var(--cache)"      title="Cache/Temp · 71 GB"></i>
+        <i data-cat="bilder"   style="width:6%;background:var(--bilder)"     title="Bilder · 54 GB"></i>
+        <i data-cat="code"     style="width:4%;background:var(--code)"       title="Code · 38 GB"></i>
+        <i data-cat="audio"    style="width:3%;background:var(--audio)"      title="Audio · 28 GB"></i>
+        <i data-cat="doku"     style="width:2%;background:var(--doku)"       title="Dokumente · 16 GB"></i>
+        <i data-cat="sonst"    style="width:5%;background:var(--sonst)"      title="Sonstiges · 49 GB"></i>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--videos)"></span>Videos <b>412 GB</b></span>
+        <span><span class="dot" style="background:var(--archive)"></span>Archive <b>168 GB</b></span>
+        <span><span class="dot" style="background:var(--installer)"></span>Installer <b>96 GB</b></span>
+        <span><span class="dot" style="background:var(--cache)"></span>Cache/Temp <b>71 GB</b></span>
+        <span><span class="dot" style="background:var(--bilder)"></span>Bilder <b>54 GB</b></span>
+        <span><span class="dot" style="background:var(--code)"></span>Code <b>38 GB</b></span>
+        <span><span class="dot" style="background:var(--sonst)"></span>Sonstiges <b>49 GB</b></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MAIN SPLIT ================= -->
+  <div class="grid">
+
+    <!-- left: categories -->
+    <div class="card">
+      <h2>📊 Nach Kategorie</h2>
+      <p class="sub">Klick filtert die Ordnerliste rechts</p>
+      <div id="cats">
+        <div class="catrow" data-cat="videos">
+          <span class="catname"><span class="dot" style="background:var(--videos)"></span>🎬 Videos</span><span class="catsz">412 GB</span>
+          <div class="catbar"><i style="width:100%;background:var(--videos);color:var(--videos)"></i></div>
+          <div class="catmeta"><span>44%</span><span>1.203 Dateien</span></div>
+        </div>
+        <div class="catrow" data-cat="archive">
+          <span class="catname"><span class="dot" style="background:var(--archive)"></span>📦 Archive</span><span class="catsz">168 GB</span>
+          <div class="catbar"><i style="width:41%;background:var(--archive);color:var(--archive)"></i></div>
+          <div class="catmeta"><span>18%</span><span>340 Dateien</span></div>
+        </div>
+        <div class="catrow" data-cat="installer">
+          <span class="catname"><span class="dot" style="background:var(--installer)"></span>⬇️ Installer</span><span class="catsz">96 GB</span>
+          <div class="catbar"><i style="width:23%;background:var(--installer);color:var(--installer)"></i></div>
+          <div class="catmeta"><span>10%</span><span>512 Dateien</span></div>
+        </div>
+        <div class="catrow" data-cat="cache">
+          <span class="catname"><span class="dot" style="background:var(--cache)"></span>🧹 Cache/Temp</span><span class="catsz">71 GB</span>
+          <div class="catbar"><i style="width:17%;background:var(--cache);color:var(--cache)"></i></div>
+          <div class="catmeta"><span>8%</span><span>88.901 Dateien</span></div>
+        </div>
+        <div class="catrow" data-cat="bilder">
+          <span class="catname"><span class="dot" style="background:var(--bilder)"></span>🖼️ Bilder</span><span class="catsz">54 GB</span>
+          <div class="catbar"><i style="width:13%;background:var(--bilder);color:var(--bilder)"></i></div>
+          <div class="catmeta"><span>6%</span><span>12.400 Dateien</span></div>
+        </div>
+        <div class="catrow" data-cat="code">
+          <span class="catname"><span class="dot" style="background:var(--code)"></span>👨‍💻 Code</span><span class="catsz">38 GB</span>
+          <div class="catbar"><i style="width:9%;background:var(--code);color:var(--code)"></i></div>
+          <div class="catmeta"><span>4%</span><span>241.882 Dateien</span></div>
+        </div>
+        <div class="catrow" data-cat="sonst">
+          <span class="catname"><span class="dot" style="background:var(--sonst)"></span>❓ Sonstiges</span><span class="catsz">49 GB</span>
+          <div class="catbar"><i style="width:12%;background:var(--sonst);color:var(--sonst)"></i></div>
+          <div class="catmeta"><span>5%</span><span>31.205 Dateien</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- right: drill-down -->
+    <div class="card">
+      <div class="toolbar">
+        <div><h2>🗂️ Drill-down · Größte Ordner</h2><p class="sub" style="margin-bottom:0">Zeile mit ▸ klicken zum Aufklappen</p></div>
+        <span class="filterTag" id="filterTag"><span id="filterTagText"></span><button id="clearFilter" title="Filter zurücksetzen">✕</button></span>
+      </div>
+      <div class="colhead"><span>Name / Pfad</span><span class="r">Anteil</span><span class="r">Größe</span></div>
+
+      <div class="tree" id="tree">
+        <div class="tnode" data-cat="videos" data-search="c:\users\me\videos">
+          <span class="nm"><span class="chev">▸</span><span class="ico">📁</span><span class="ptext"><span class="leaf">C:\Users\me\Videos</span></span><span class="badge"><span class="dot" style="background:var(--videos)"></span>Videos</span></span>
+          <span class="tbar"><span class="mini"><i style="width:100%;background:var(--videos)"></i></span><span class="pc">33%</span></span>
+          <span class="tsz">310 GB</span>
+        </div>
+
+        <div class="tnode" data-cat="sonst" data-search="c:\users\me\downloads">
+          <span class="nm"><span class="chev">▸</span><span class="ico">📁</span><span class="ptext"><span class="leaf">C:\Users\me\Downloads</span></span><span class="badge"><span class="dot" style="background:var(--sonst)"></span>gemischt</span></span>
+          <span class="tbar"><span class="mini"><i style="width:46%;background:var(--sonst)"></i></span><span class="pc">15%</span></span>
+          <span class="tsz">142 GB</span>
+        </div>
+
+        <div class="tnode parent open" data-cat="cache" data-search="c:\users\me\appdata\local cache temp">
+          <span class="nm"><span class="chev">▸</span><span class="ico">📂</span><span class="ptext"><span class="leaf">C:\Users\me\AppData\Local</span></span><span class="badge"><span class="dot" style="background:var(--cache)"></span>Cache</span></span>
+          <span class="tbar"><span class="mini"><i style="width:22%;background:var(--cache)"></i></span><span class="pc">7%</span></span>
+          <span class="tsz">68 GB</span>
+        </div>
+        <div class="tgroup">
+          <div class="tnode child" data-cat="cache" data-search="c:\users\me\appdata\local\temp">
+            <span class="nm"><span class="chev">▸</span><span class="ico">📁</span><span class="ptext"><span class="leaf">…\Temp</span></span></span>
+            <span class="tbar"><span class="mini"><i style="width:13%;background:var(--cache)"></i></span><span class="pc">4%</span></span>
+            <span class="tsz">41 GB</span>
+          </div>
+          <div class="tnode child" data-cat="cache" data-search="c:\users\me\appdata\local\packages">
+            <span class="nm"><span class="chev">▸</span><span class="ico">📁</span><span class="ptext"><span class="leaf">…\Packages</span></span></span>
+            <span class="tbar"><span class="mini"><i style="width:6%;background:var(--cache)"></i></span><span class="pc">2%</span></span>
+            <span class="tsz">19 GB</span>
+          </div>
+          <div class="tnode child" data-cat="cache" data-search="c:\users\me\appdata\local\microsoft\edge">
+            <span class="nm"><span class="chev">▸</span><span class="ico">📁</span><span class="ptext"><span class="leaf">…\Microsoft\Edge</span></span></span>
+            <span class="tbar"><span class="mini"><i style="width:2%;background:var(--cache)"></i></span><span class="pc">1%</span></span>
+            <span class="tsz">8 GB</span>
+          </div>
+        </div>
+
+        <div class="tnode" data-cat="sonst" data-search="c:\programdata">
+          <span class="nm"><span class="chev">▸</span><span class="ico">📁</span><span class="ptext"><span class="leaf">C:\ProgramData</span></span></span>
+          <span class="tbar"><span class="mini"><i style="width:7%;background:var(--sonst)"></i></span><span class="pc">2%</span></span>
+          <span class="tsz">22 GB</span>
+        </div>
+
+        <div class="tnode" data-cat="code" data-search="c:\users\me\projects\node_modules code">
+          <span class="nm"><span class="chev">▸</span><span class="ico">📁</span><span class="ptext"><span class="leaf">C:\Users\me\Projects\node_modules</span></span><span class="badge"><span class="dot" style="background:var(--code)"></span>Code</span></span>
+          <span class="tbar"><span class="mini"><i style="width:5%;background:var(--code)"></i></span><span class="pc">1,5%</span></span>
+          <span class="tsz">14 GB</span>
+        </div>
+
+        <div class="tnode" data-cat="videos" data-search="c:\users\me\videos\pacific-rim-4k.mkv">
+          <span class="nm"><span class="chev">▸</span><span class="ico">📄</span><span class="ptext"><span class="leaf">pacific-rim-4k.mkv</span><span class="dir">C:\Users\me\Videos</span></span><span class="badge"><span class="dot" style="background:var(--videos)"></span>Videos</span></span>
+          <span class="tbar"><span class="mini"><i style="width:12%;background:var(--videos)"></i></span><span class="pc">4%</span></span>
+          <span class="tsz">38 GB</span>
+        </div>
+
+        <div class="tnode" data-cat="archive" data-search="c:\users\me\downloads\backup-2025-12.zip">
+          <span class="nm"><span class="chev">▸</span><span class="ico">📄</span><span class="ptext"><span class="leaf">backup-2025-12.zip</span><span class="dir">C:\Users\me\Downloads</span></span><span class="badge"><span class="dot" style="background:var(--archive)"></span>Archive</span></span>
+          <span class="tbar"><span class="mini"><i style="width:10%;background:var(--archive)"></i></span><span class="pc">3%</span></span>
+          <span class="tsz">31 GB</span>
+        </div>
+
+        <div class="tnode" data-cat="installer" data-search="c:\users\me\downloads\ubuntu-24.04.iso">
+          <span class="nm"><span class="chev">▸</span><span class="ico">📄</span><span class="ptext"><span class="leaf">ubuntu-24.04.iso</span><span class="dir">C:\Users\me\Downloads</span></span><span class="badge"><span class="dot" style="background:var(--installer)"></span>Installer</span></span>
+          <span class="tbar"><span class="mini"><i style="width:2%;background:var(--installer)"></i></span><span class="pc">0,6%</span></span>
+          <span class="tsz">5,2 GB</span>
+        </div>
+      </div>
+      <div class="empty" id="empty">Keine Einträge passen zum Filter.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const CAT_LABEL = {videos:"Videos",archive:"Archive",installer:"Installer",cache:"Cache/Temp",
+    bilder:"Bilder",code:"Code",audio:"Audio",doku:"Dokumente",sonst:"Sonstiges"};
+
+  const tree   = document.getElementById('tree');
+  const nodes  = [...tree.querySelectorAll('.tnode')];
+  const filter = document.getElementById('filter');
+  const empty  = document.getElementById('empty');
+  const tag    = document.getElementById('filterTag');
+  const tagTxt = document.getElementById('filterTagText');
+  const stackSegs = [...document.querySelectorAll('#stack i')];
+
+  let activeCat = null;
+
+  function apply(){
+    const q = filter.value.trim().toLowerCase();
+    tree.classList.toggle('searching', q.length > 0);
+
+    let visible = 0;
+    nodes.forEach(n => {
+      const text = n.dataset.search || '';
+      const cat  = n.dataset.cat;
+      const okText = !q || text.includes(q);
+      const okCat  = !activeCat || cat === activeCat;
+      const show = okText && okCat;
+      n.classList.toggle('filtered-out', !show);
+      if (show) visible++;
+    });
+    empty.classList.toggle('show', visible === 0);
+
+    // category filter chip
+    tag.classList.toggle('show', !!activeCat);
+    if (activeCat) tagTxt.textContent = 'Kategorie: ' + CAT_LABEL[activeCat];
+
+    // dim non-active segments in the composition bar
+    stackSegs.forEach(s => s.classList.toggle('dim', !!activeCat && s.dataset.cat !== activeCat));
+    // highlight active category row
+    document.querySelectorAll('.catrow').forEach(r =>
+      r.classList.toggle('active', r.dataset.cat === activeCat));
+  }
+
+  function setCat(cat){ activeCat = (activeCat === cat) ? null : cat; apply(); }
+
+  // category rows + composition segments select a category
+  document.querySelectorAll('.catrow').forEach(r => r.addEventListener('click', () => setCat(r.dataset.cat)));
+  stackSegs.forEach(s => s.addEventListener('click', () => setCat(s.dataset.cat)));
+
+  // expand / collapse folders
+  tree.querySelectorAll('.tnode.parent').forEach(p =>
+    p.addEventListener('click', () => p.classList.toggle('open')));
+
+  // filtering
+  filter.addEventListener('input', apply);
+  document.getElementById('clearFilter').addEventListener('click', () => { activeCat = null; apply(); });
+
+  // drive chips (cosmetic)
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+  }));
+
+  apply();
+</script>
+</body>
+</html>

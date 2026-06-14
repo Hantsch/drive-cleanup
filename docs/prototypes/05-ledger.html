@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prototyp 5 – Ledger (Data-dense)</title>
+<style>
+  :root{
+    --bg:#ffffff; --ink:#111827; --muted:#6b7280; --line:#e8eaed; --hover:#f7f8fa; --accent:#2563eb;
+    --videos:#7c3aed; --archive:#d97706; --installer:#059669; --cache:#e11d48;
+    --bilder:#0284c7; --code:#c026d3; --audio:#0d9488; --doku:#0891b2; --sonst:#64748b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:13px}
+  .bar-top{display:flex;align-items:center;gap:16px;padding:10px 18px;border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:14px}
+  .logo{width:24px;height:24px;border-radius:7px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:13px}
+  .path{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--hover);border:1px solid var(--line);
+    border-radius:7px;padding:5px 10px;color:var(--muted);font-size:12px}
+  .spacer{flex:1}
+  .toolbtn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 11px;font-size:12px;cursor:pointer;color:var(--ink)}
+  .toolbtn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  /* composition strip */
+  .strip{padding:12px 18px;border-bottom:1px solid var(--line);background:var(--hover)}
+  .strip .meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:7px}
+  .stack{height:14px;border-radius:5px;overflow:hidden;display:flex;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+  .stack i{height:100%}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:9px}
+  .legend span{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted)}
+  .legend .dot{width:9px;height:9px;border-radius:2px}
+  /* table */
+  table{width:100%;border-collapse:collapse}
+  thead th{position:sticky;top:0;background:#fff;text-align:left;font-size:11px;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--muted);font-weight:600;padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none}
+  thead th.num{text-align:right}
+  thead th.sorted::after{content:" ▾";color:var(--accent)}
+  tbody td{padding:8px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:hover{background:var(--hover)}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+  .name{display:flex;align-items:center;gap:9px}
+  .name .ic{width:18px;text-align:center}
+  .name .p{color:var(--muted);font-size:11.5px}
+  .cat{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600}
+  .cat .dot{width:9px;height:9px;border-radius:2px}
+  .pcell{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+  .pbar{width:80px;height:7px;border-radius:99px;background:#eef0f3;overflow:hidden}
+  .pbar i{display:block;height:100%;border-radius:99px}
+  .footer{display:flex;justify-content:space-between;padding:9px 18px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+  <div class="bar-top">
+    <div class="brand"><span class="logo">◎</span> DriveLens</div>
+    <span class="path">C:\</span>
+    <input class="path" style="width:230px" placeholder="🔍 Filtern nach Name oder Pfad…" />
+    <div class="spacer"></div>
+    <button class="toolbtn">Kategorie ▾</button>
+    <button class="toolbtn">CSV export</button>
+    <button class="toolbtn primary">Neu scannen</button>
+  </div>
+
+  <div class="strip">
+    <div class="meta"><span><b style="color:var(--ink)">932 GB</b> belegt von 1 TB · 384.913 Dateien · 12.402 Ordner</span><span>Scan: 1m 48s · 14.06.2026 16:20</span></div>
+    <div class="stack">
+      <i style="width:44%;background:var(--videos)"></i><i style="width:18%;background:var(--archive)"></i>
+      <i style="width:10%;background:var(--installer)"></i><i style="width:8%;background:var(--cache)"></i>
+      <i style="width:6%;background:var(--bilder)"></i><i style="width:4%;background:var(--code)"></i>
+      <i style="width:3%;background:var(--audio)"></i><i style="width:2%;background:var(--doku)"></i>
+      <i style="width:5%;background:var(--sonst)"></i>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--videos)"></span>Videos 412 GB</span>
+      <span><span class="dot" style="background:var(--archive)"></span>Archive 168 GB</span>
+      <span><span class="dot" style="background:var(--installer)"></span>Installer 96 GB</span>
+      <span><span class="dot" style="background:var(--cache)"></span>Cache/Temp 71 GB</span>
+      <span><span class="dot" style="background:var(--bilder)"></span>Bilder 54 GB</span>
+      <span><span class="dot" style="background:var(--code)"></span>Code 38 GB</span>
+      <span><span class="dot" style="background:var(--sonst)"></span>Sonstiges 49 GB</span>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name / Pfad</th>
+        <th>Kategorie</th>
+        <th class="num sorted">Größe</th>
+        <th class="num">Anteil</th>
+        <th class="num">Dateien</th>
+        <th class="num">Geändert</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><div class="name"><span class="ic">📁</span><div>C:\Users\me\Videos<div class="p">Ordner</div></div></div></td>
+        <td><span class="cat"><span class="dot" style="background:var(--videos)"></span>Videos</span></td>
+        <td class="num">310 GB</td>
+        <td class="num"><div class="pcell"><div class="pbar"><i style="width:100%;background:var(--videos)"></i></div>33%</div></td>
+        <td class="num">1.118</td><td class="num">12.05.2026</td>
+      </tr>
+      <tr>
+        <td><div class="name"><span class="ic">📁</span><div>C:\Users\me\Downloads<div class="p">Ordner · gemischt</div></div></div></td>
+        <td><span class="cat"><span class="dot" style="background:var(--sonst)"></span>gemischt</span></td>
+        <td class="num">142 GB</td>
+        <td class="num"><div class="pcell"><div class="pbar"><i style="width:46%;background:var(--sonst)"></i></div>15%</div></td>
+        <td class="num">4.290</td><td class="num">14.06.2026</td>
+      </tr>
+      <tr>
+        <td><div class="name"><span class="ic">📄</span><div>backup-2025-12.zip<div class="p">C:\Users\me\Downloads</div></div></div></td>
+        <td><span class="cat"><span class="dot" style="background:var(--archive)"></span>Archive</span></td>
+        <td class="num">31 GB</td>
+        <td class="num"><div class="pcell"><div class="pbar"><i style="width:10%;background:var(--archive)"></i></div>3,3%</div></td>
+        <td class="num">1</td><td class="num">31.12.2025</td>
+      </tr>
+      <tr>
+        <td><div class="name"><span class="ic">📂</span><div>C:\Users\me\AppData\Local\Temp<div class="p">Ordner · temporär</div></div></div></td>
+        <td><span class="cat"><span class="dot" style="background:var(--cache)"></span>Cache/Temp</span></td>
+        <td class="num">41 GB</td>
+        <td class="num"><div class="pcell"><div class="pbar"><i style="width:13%;background:var(--cache)"></i></div>4,4%</div></td>
+        <td class="num">62.104</td><td class="num">14.06.2026</td>
+      </tr>
+      <tr>
+        <td><div class="name"><span class="ic">📄</span><div>pacific-rim-4k.mkv<div class="p">C:\Users\me\Videos</div></div></div></td>
+        <td><span class="cat"><span class="dot" style="background:var(--videos)"></span>Videos</span></td>
+        <td class="num">38 GB</td>
+        <td class="num"><div class="pcell"><div class="pbar"><i style="width:12%;background:var(--videos)"></i></div>4,1%</div></td>
+        <td class="num">1</td><td class="num">02.03.2026</td>
+      </tr>
+      <tr>
+        <td><div class="name"><span class="ic">📁</span><div>C:\Users\me\Projects\node_modules<div class="p">Ordner · Code</div></div></div></td>
+        <td><span class="cat"><span class="dot" style="background:var(--code)"></span>Code</span></td>
+        <td class="num">14 GB</td>
+        <td class="num"><div class="pcell"><div class="pbar"><i style="width:5%;background:var(--code)"></i></div>1,5%</div></td>
+        <td class="num">241.882</td><td class="num">13.06.2026</td>
+      </tr>
+      <tr>
+        <td><div class="name"><span class="ic">📄</span><div>ubuntu-24.04.iso<div class="p">C:\Users\me\Downloads</div></div></div></td>
+        <td><span class="cat"><span class="dot" style="background:var(--installer)"></span>Installer</span></td>
+        <td class="num">5,2 GB</td>
+        <td class="num"><div class="pcell"><div class="pbar"><i style="width:2%;background:var(--installer)"></i></div>0,6%</div></td>
+        <td class="num">1</td><td class="num">20.04.2026</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer"><span>7 von 12.402 Einträgen · sortiert nach Größe ↓</span><span>Tipp: Spaltenkopf klicken zum Sortieren</span></div>
+</body>
+</html>
