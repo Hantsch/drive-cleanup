@@ -1,10 +1,20 @@
-import { opendir, lstat } from 'node:fs/promises'
+import { readdir, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 import { categorize } from '@shared/categorize'
 import type { CategoryId } from '@shared/categories'
 import type { ScanNode, ScanProgress } from '@shared/types'
 
 const PROGRESS_INTERVAL_MS = 150
+
+/** How many directories are read in parallel. */
+const DIR_CONCURRENCY = 16
+/** How many files are stat()'d in parallel within a single directory. */
+const FILE_CONCURRENCY = 8
+/** Files are only retained as tree nodes near the top; deeper ones are still
+ *  counted but not kept (they can never be displayed and would waste memory). */
+const RETAIN_FILES_MAX_DEPTH = 4
+/** Largest files kept per directory for the drill-down. */
+const MAX_FILE_CHILDREN = 100
 
 interface CategoryAccumulator {
   sizeBytes: number
@@ -24,10 +34,16 @@ export interface ScanContext {
   isCancelled: () => boolean
 }
 
+interface WorkItem {
+  node: ScanNode
+  depth: number
+}
+
 /**
- * Recursively walks a directory, building an aggregated tree while collecting
- * per-category totals. Symlinks and junctions are skipped to avoid loops and
- * double counting; unreadable directories are recorded and skipped.
+ * Walks a directory tree with a bounded worker pool. Files are stat()'d in
+ * parallel and aggregated into per-category totals; symlinks/junctions are
+ * skipped to avoid loops and double counting. Directory sizes are summed in a
+ * single post-order pass once the walk finishes.
  */
 export class Scanner {
   private readonly stats: ScanStats = {
@@ -43,67 +59,117 @@ export class Scanner {
   constructor(private readonly ctx: ScanContext) {}
 
   async scan(root: string): Promise<{ tree: ScanNode; stats: ScanStats }> {
-    const tree = await this.walkDir(root, rootName(root))
-    return { tree, stats: this.stats }
-  }
-
-  private async walkDir(dirPath: string, name: string): Promise<ScanNode> {
-    this.stats.dirs += 1
-    const node: ScanNode = {
-      name,
-      path: dirPath,
+    const tree: ScanNode = {
+      name: rootName(root),
+      path: root,
       type: 'dir',
       sizeBytes: 0,
       fileCount: 0,
       children: []
     }
 
-    let dir
-    try {
-      dir = await opendir(dirPath)
-    } catch {
-      node.accessError = true
-      this.stats.skipped.push(dirPath)
-      return node
-    }
+    await this.drain([{ node: tree, depth: 0 }])
+    aggregateSizes(tree)
+    return { tree, stats: this.stats }
+  }
 
-    try {
-      for await (const entry of dir) {
-        if (this.ctx.isCancelled()) break
-        if (entry.isSymbolicLink()) continue
+  /** Runs a fixed pool of workers over a growing queue of directories. */
+  private drain(queue: WorkItem[]): Promise<void> {
+    return new Promise((resolve) => {
+      let inFlight = 0
 
-        const childPath = join(dirPath, entry.name)
-        if (entry.isDirectory()) {
-          const child = await this.walkDir(childPath, entry.name)
-          node.children!.push(child)
-          node.sizeBytes += child.sizeBytes
-          node.fileCount += child.fileCount
-        } else if (entry.isFile()) {
-          const child = await this.statFile(childPath, entry.name)
-          if (child) {
-            node.children!.push(child)
-            node.sizeBytes += child.sizeBytes
-            node.fileCount += 1
-          }
+      const pump = (): void => {
+        if (this.ctx.isCancelled()) {
+          if (inFlight === 0) resolve()
+          return
         }
+        while (inFlight < DIR_CONCURRENCY && queue.length > 0) {
+          // pop() (LIFO) is O(1); ordering does not matter since sizes are
+          // aggregated at the end. shift() would be O(n) and quadratic overall.
+          const item = queue.pop() as WorkItem
+          inFlight += 1
+          this.processDir(item, queue).finally(() => {
+            inFlight -= 1
+            if (queue.length === 0 && inFlight === 0) resolve()
+            else pump()
+          })
+        }
+        if (queue.length === 0 && inFlight === 0) resolve()
       }
+
+      pump()
+    })
+  }
+
+  private async processDir({ node, depth }: WorkItem, queue: WorkItem[]): Promise<void> {
+    if (this.ctx.isCancelled()) return
+    this.stats.dirs += 1
+
+    let entries
+    try {
+      entries = await readdir(node.path, { withFileTypes: true })
     } catch {
       node.accessError = true
+      this.stats.skipped.push(node.path)
+      return
     }
 
-    this.maybeEmit(dirPath)
-    return node
+    const fileNames: string[] = []
+    const childDirs: ScanNode[] = []
+
+    for (const entry of entries) {
+      if (entry.isSymbolicLink()) continue
+      if (entry.isDirectory()) {
+        const childNode: ScanNode = {
+          name: entry.name,
+          path: join(node.path, entry.name),
+          type: 'dir',
+          sizeBytes: 0,
+          fileCount: 0,
+          children: []
+        }
+        childDirs.push(childNode)
+        queue.push({ node: childNode, depth: depth + 1 })
+      } else if (entry.isFile()) {
+        fileNames.push(entry.name)
+      }
+    }
+
+    const fileNodes = await mapLimit(fileNames, FILE_CONCURRENCY, (name) =>
+      this.statFile(join(node.path, name), name)
+    )
+
+    let ownSize = 0
+    let ownCount = 0
+    const retained: ScanNode[] = []
+    for (const file of fileNodes) {
+      if (!file) continue
+      ownSize += file.sizeBytes
+      ownCount += 1
+      if (depth <= RETAIN_FILES_MAX_DEPTH) retained.push(file)
+    }
+
+    // Own files contribute now; child directories are added in aggregateSizes.
+    node.sizeBytes = ownSize
+    node.fileCount = ownCount
+
+    if (retained.length > MAX_FILE_CHILDREN) {
+      retained.sort((a, b) => b.sizeBytes - a.sizeBytes)
+      retained.length = MAX_FILE_CHILDREN
+    }
+    node.children = [...retained, ...childDirs]
+
+    this.maybeEmit(node.path)
   }
 
   private async statFile(filePath: string, name: string): Promise<ScanNode | null> {
     let info
     try {
-      info = await lstat(filePath)
+      info = await stat(filePath)
     } catch {
       this.stats.skipped.push(filePath)
       return null
     }
-    if (info.isSymbolicLink()) return null
 
     const category = categorize(filePath)
     this.stats.files += 1
@@ -137,6 +203,37 @@ export class Scanner {
       currentPath
     })
   }
+}
+
+/** Post-order pass: fold child directory sizes into their parents. */
+function aggregateSizes(node: ScanNode): void {
+  for (const child of node.children ?? []) {
+    if (child.type !== 'dir') continue
+    aggregateSizes(child)
+    node.sizeBytes += child.sizeBytes
+    node.fileCount += child.fileCount
+  }
+}
+
+/** Runs `fn` over `items` with at most `limit` promises in flight. */
+async function mapLimit<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = new Array(items.length)
+  let cursor = 0
+
+  const worker = async (): Promise<void> => {
+    while (cursor < items.length) {
+      const index = cursor++
+      results[index] = await fn(items[index])
+    }
+  }
+
+  const size = Math.min(limit, items.length)
+  await Promise.all(Array.from({ length: size }, worker))
+  return results
 }
 
 /** Display name for the scanned root, e.g. "C:\" or the leaf folder name. */

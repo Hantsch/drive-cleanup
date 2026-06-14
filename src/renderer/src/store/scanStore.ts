@@ -12,6 +12,12 @@ interface ScanStore {
   result: ScanResult | null
   error: string | null
 
+  /** Bytes expected for the scan (used space of the drive), the progress %
+   *  denominator. Null for folder scans where the total is unknown. */
+  scanTotalBytes: number | null
+  /** Wall-clock start of the current scan, used to estimate time remaining. */
+  scanStartedAt: number | null
+
   // View state for the result screen
   filter: string
   selectedCategory: CategoryId | null
@@ -36,7 +42,9 @@ const FRESH = {
   result: null,
   error: null,
   filter: '',
-  selectedCategory: null
+  selectedCategory: null,
+  scanTotalBytes: null,
+  scanStartedAt: null
 } as const
 
 export const useScanStore = create<ScanStore>((set, get) => ({
@@ -47,7 +55,13 @@ export const useScanStore = create<ScanStore>((set, get) => ({
   loadDrives: async () => set({ drives: await window.api.listDrives() }),
 
   startScan: async (root) => {
-    set({ ...FRESH, phase: 'scanning', root })
+    const drive = get().drives.find(
+      (candidate) => `${candidate.letter}\\`.toLowerCase() === root.toLowerCase()
+    )
+    const scanTotalBytes =
+      drive && drive.totalBytes > 0 ? drive.totalBytes - drive.freeBytes : null
+
+    set({ ...FRESH, phase: 'scanning', root, scanTotalBytes, scanStartedAt: Date.now() })
     await window.api.startScan(root)
   },
 
