@@ -4,7 +4,7 @@ Scan a Windows drive and see, by category and folder, **where the space actually
 so you know what to clean up later. Version 1 is read-only: it analyses and
 visualises, it never deletes anything.
 
-> Status: v1 (analysis only). See [docs/Konzept.md](docs/Konzept.md) for the full concept and roadmap.
+> Status: v1 (analysis only). See [docs/Concept.md](docs/Concept.md) for the full concept and roadmap.
 
 ## Features
 
@@ -37,14 +37,14 @@ Or manually: `npm install` then `npm run dev`.
 
 ## Scripts
 
-| Command             | Description                                  |
-| ------------------- | -------------------------------------------- |
-| `npm run dev`       | Run the app with hot reload                  |
-| `npm run build`     | Type-check and build the production bundle   |
-| `npm run preview`   | Run the built app                            |
-| `npm run typecheck` | Type-check main, preload and renderer        |
-| `npm run lint`      | Lint the source                              |
-| `npm run package`   | Build a distributable installer (optional)   |
+| Command             | Description                                |
+| ------------------- | ------------------------------------------ |
+| `npm run dev`       | Run the app with hot reload                |
+| `npm run build`     | Type-check and build the production bundle |
+| `npm run preview`   | Run the built app                          |
+| `npm run typecheck` | Type-check main, preload and renderer      |
+| `npm run lint`      | Lint the source                            |
+| `npm run package`   | Build a distributable installer (optional) |
 
 ## Project structure
 
