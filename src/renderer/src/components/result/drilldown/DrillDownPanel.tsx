@@ -2,7 +2,7 @@ import { CATEGORY_BY_ID, GAMING_CATEGORY_IDS } from '@shared/categories'
 import type { InstalledGame, ScanNode, ScanResult } from '@shared/types'
 import { useScanStore } from '@renderer/store/scanStore'
 import { Panel } from '@renderer/components/common/Panel'
-import { bySizeDesc, filesOfCategory, searchNodes } from '@renderer/lib/tree'
+import { bySizeDesc, categoryFolders, searchNodes } from '@renderer/lib/tree'
 import { FolderTree } from './FolderTree'
 import { NodeRow } from './NodeRow'
 
@@ -47,7 +47,7 @@ export function DrillDownPanel({ result }: { result: ScanResult }) {
     mode = 'games'
   } else if (selectedCategory) {
     mode = 'category'
-    flat = filesOfCategory(result.tree, selectedCategory)
+    flat = categoryFolders(result.tree, selectedCategory)
       .filter((node) => query === '' || node.path.toLowerCase().includes(query))
       .sort(bySizeDesc)
   } else if (query !== '') {
@@ -67,6 +67,10 @@ export function DrillDownPanel({ result }: { result: ScanResult }) {
   if (mode === 'tree') subtitle = 'Click a folder to expand it'
   else if (mode === 'games')
     subtitle = `${games.length} installed game${games.length === 1 ? '' : 's'} · largest first`
+  else if (mode === 'category')
+    subtitle = `${shown.length} folder${shown.length === 1 ? '' : 's'}${
+      truncated ? ` (showing top ${MAX_FLAT_ROWS})` : ''
+    } · largest first`
   else
     subtitle = `${shown.length} match${shown.length === 1 ? '' : 'es'}${
       truncated ? ` (showing top ${MAX_FLAT_ROWS})` : ''
@@ -107,9 +111,7 @@ export function DrillDownPanel({ result }: { result: ScanResult }) {
           ))}
 
         {(mode === 'category' || mode === 'search') &&
-          shown.map((node) => (
-            <NodeRow key={node.path} node={node} totalBytes={total} showDir />
-          ))}
+          shown.map((node) => <NodeRow key={node.path} node={node} totalBytes={total} showDir />)}
 
         {(mode === 'category' || mode === 'search') && shown.length === 0 && (
           <p className="py-10 text-center text-sm text-muted">Nothing matches this filter.</p>
